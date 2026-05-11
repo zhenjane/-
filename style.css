@@ -1,0 +1,130 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f7fb;
+  color: #1f2937;
+}
+
+main {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.equation-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.inputs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+label {
+  font-weight: 600;
+}
+
+input[type="number"] {
+  width: 5rem;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.9rem 1.4rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+#steps,
+#solution,
+#numberLine {
+  margin-top: 1rem;
+}
+
+.step-item {
+  margin-bottom: 1rem;
+}
+
+.number-line-wrap {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+}
+
+.number-line {
+  position: relative;
+  height: 3rem;
+  margin-top: 1rem;
+  background: #f1f5f9;
+  border-radius: 1rem;
+}
+
+.tick {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  height: 1rem;
+  background: #475569;
+}
+
+.tick-label {
+  position: absolute;
+  bottom: -1.4rem;
+  transform: translateX(-50%);
+  font-size: 0.9rem;
+}
+
+.marker {
+  position: absolute;
+  bottom: 0.8rem;
+  transform: translateX(-50%);
+  padding: 0.25rem 0.5rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+@media (min-width: 680px) {
+  .equation-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
