@@ -184,12 +184,25 @@ function solveOneVariable() {
   if (a === 0) {
     const errorStep = document.createElement('div');
     errorStep.className = 'step-item';
+    let isInfinite = false;
     if (b === c) {
       errorStep.innerHTML = `<strong>無限多個解：</strong> 方程式簡化為 ${b} = ${c}，恆成立。任何實數 x 皆為方程式的解。`;
+      isInfinite = true;
     } else {
       errorStep.innerHTML = `<strong>無解：</strong> 方程式簡化為 ${b} = ${c}，此等式不成立，方程式無解。`;
     }
     stepsEl.appendChild(errorStep);
+
+    // 顯示圖表控制項並繪製圖表
+    const modeSelect = document.getElementById('chartModeSelect');
+    modeSelect.innerHTML = '<option value="oneVar2D">一元方程式函數圖 (2D)</option>';
+    
+    document.getElementById('chartControls').style.display = 'block';
+    document.getElementById('variableSelectGroup').style.display = 'none';
+    document.getElementById('projectionSelectGroup').style.display = 'none';
+    document.getElementById('chartContainer').style.display = 'block';
+
+    renderOneVarNoSolutionChart(a, b, c, isInfinite);
     return;
   }
 
@@ -312,6 +325,82 @@ function renderOneVarChart(solX, a, b, c) {
 }
 
 /**
+ * 繪製一元一次方程式無解或無限多解的 2D 幾何圖形 (平行或重合線)
+ */
+function renderOneVarNoSolutionChart(a, b, c, isInfinite) {
+  const minVal = -5;
+  const maxVal = 5;
+  const step = 0.2;
+  const dataPoints = [];
+  const targetPoints = [];
+
+  for (let x = minVal; x <= maxVal; x = Number((x + step).toFixed(2))) {
+    dataPoints.push({ x: x, y: a * x + b }); // a 是 0，所以 y = b
+    targetPoints.push({ x: x, y: c });
+  }
+
+  const ctx = document.getElementById('equationChart').getContext('2d');
+  document.getElementById('equationChart').style.display = 'block';
+  document.getElementById('plotlyChart').style.display = 'none';
+
+  equationChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: `函數 y = ${a}x + ${b}`,
+          data: dataPoints,
+          borderColor: '#2563eb',
+          borderWidth: 3,
+          tension: 0.1,
+          fill: false,
+          pointRadius: 0,
+        },
+        {
+          label: `目標常數線 y = ${c}`,
+          data: targetPoints,
+          borderColor: isInfinite ? '#10b981' : '#94a3b8',
+          borderDash: [5, 5],
+          borderWidth: 2,
+          fill: false,
+          pointRadius: 0,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'nearest',
+        intersect: false
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: isInfinite ? `一元一次方程式幾何圖 (無限多個解 - 兩線重合)` : `一元一次方程式幾何圖 (無解 - 兩線平行)`,
+          font: { size: 15, weight: 'bold', family: 'Outfit, sans-serif' }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          position: 'bottom',
+          min: minVal,
+          max: maxVal,
+          title: { display: true, text: '變數 x' }
+        },
+        y: {
+          title: { display: true, text: 'y 值' },
+          min: Math.min(b, c) - 2,
+          max: Math.max(b, c) + 2
+        }
+      }
+    }
+  });
+}
+
+
+/**
  * ----------------------------------------------------
  * 二元一次聯立方程式求解與 2D 雙線交點繪製邏輯
  * ----------------------------------------------------
@@ -348,12 +437,25 @@ function solveTwoVariables() {
   if (D === 0) {
     const errorStep = document.createElement('div');
     errorStep.className = 'step-item';
+    let isInfinite = false;
     if (Dx === 0 && Dy === 0) {
       errorStep.innerHTML = '<strong>無限多組解：</strong> 行列式值 D = 0 且 D_x = D_y = 0，代表兩條直線完全重合。';
+      isInfinite = true;
     } else {
       errorStep.innerHTML = '<strong>無解：</strong> 行列式值 D = 0，但 D_x 或 D_y 不為 0，代表兩條直線平行且無交點。';
     }
     stepsEl.appendChild(errorStep);
+
+    // 顯示圖表控制項並繪製圖表
+    const modeSelect = document.getElementById('chartModeSelect');
+    modeSelect.innerHTML = '<option value="twoVar2D">二元聯立直線圖 (2D)</option>';
+    
+    document.getElementById('chartControls').style.display = 'block';
+    document.getElementById('variableSelectGroup').style.display = 'none';
+    document.getElementById('projectionSelectGroup').style.display = 'none';
+    document.getElementById('chartContainer').style.display = 'block';
+
+    renderTwoVarNoSolutionChart(a1, b1, c1, a2, b2, c2, isInfinite);
     return;
   }
 
@@ -468,6 +570,77 @@ function renderTwoVarChart(solX, solY, a1, b1, c1, a2, b2, c2) {
 }
 
 /**
+ * 繪製二元一次聯立方程式無解或無限多解的 2D 幾何圖形 (平行或重合線)
+ */
+function renderTwoVarNoSolutionChart(a1, b1, c1, a2, b2, c2, isInfinite) {
+  let centerX = 0;
+  let centerY = 0;
+  if (Math.abs(b1) > 0.000001 && Math.abs(b2) > 0.000001) {
+    centerY = (c1 / b1 + c2 / b2) / 2;
+  } else if (Math.abs(a1) > 0.000001 && Math.abs(a2) > 0.000001) {
+    centerX = (c1 / a1 + c2 / a2) / 2;
+  }
+
+  const points1 = getLinePoints(a1, b1, c1, centerX, centerY);
+  const points2 = getLinePoints(a2, b2, c2, centerX, centerY);
+
+  const ctx = document.getElementById('equationChart').getContext('2d');
+  document.getElementById('equationChart').style.display = 'block';
+  document.getElementById('plotlyChart').style.display = 'none';
+
+  equationChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: `方程式 1: ${a1}x + ${b1}y = ${c1}`,
+          data: points1,
+          borderColor: '#3b82f6',
+          borderWidth: 3,
+          fill: false,
+          pointRadius: 0,
+        },
+        {
+          label: `方程式 2: ${a2}x + ${b2}y = ${c2}`,
+          data: points2,
+          borderColor: isInfinite ? '#3b82f6' : '#10b981',
+          borderDash: isInfinite ? [5, 5] : [],
+          borderWidth: 3,
+          fill: false,
+          pointRadius: 0,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: isInfinite ? `二元一次聯立方程式幾何圖 (無限多組解 - 兩線重合)` : `二元一次聯立方程式幾何圖 (無解 - 兩線平行)`,
+          font: { size: 15, weight: 'bold', family: 'Outfit, sans-serif' }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          position: 'bottom',
+          min: centerX - 5,
+          max: centerX + 5,
+          title: { display: true, text: '變數 x' }
+        },
+        y: {
+          type: 'linear',
+          min: centerY - 5,
+          max: centerY + 5,
+          title: { display: true, text: '變數 y' }
+        }
+      }
+    }
+  });
+}
+
+/**
  * ----------------------------------------------------
  * 三元一次聯立方程式求解與 2D/3D 圖表整合邏輯
  * ----------------------------------------------------
@@ -524,9 +697,32 @@ function solveThreeVariables() {
   if (det === 0) {
     const errorStep = document.createElement('div');
     errorStep.className = 'step-item';
-    errorStep.innerHTML = '<strong>無解或無唯一解：</strong>這組係數的行列式為 0，無法用此方法求出唯一解。請調整方程式。';
+    
+    // 計算分子行列式以協助判斷是無解還是無限多解
+    const xDet = determinant3x3(replaceColumn(matrix, 0, constants));
+    const yDet = determinant3x3(replaceColumn(matrix, 1, constants));
+    const zDet = determinant3x3(replaceColumn(matrix, 2, constants));
+    
+    let isInfinite = false;
+    if (xDet === 0 && yDet === 0 && zDet === 0) {
+      errorStep.innerHTML = '<strong>無限多組解或無解：</strong> 行列式值 D = 0 且 D_x = D_y = D_z = 0，代表平面可能共線相交、部分重合或完全重合。';
+      isInfinite = true;
+    } else {
+      errorStep.innerHTML = '<strong>無解：</strong> 行列式值 D = 0，但 D_x, D_y 或 D_z 至少有一個不為 0，代表平面無共同交點（可能互相平行，或兩兩交線互相平行）。';
+    }
     stepsEl.appendChild(errorStep);
     systemSolution = null;
+
+    // 顯示圖表控制項並繪製 3D 圖表
+    const modeSelect = document.getElementById('chartModeSelect');
+    modeSelect.innerHTML = '<option value="intersection3d">空間平面關係圖 (3D 立體圖)</option>';
+    
+    document.getElementById('chartControls').style.display = 'block';
+    document.getElementById('variableSelectGroup').style.display = 'none';
+    document.getElementById('projectionSelectGroup').style.display = 'none';
+    document.getElementById('chartContainer').style.display = 'block';
+
+    renderThreeVarNoSolutionChart(a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, isInfinite);
     return;
   }
 
@@ -705,6 +901,84 @@ function render3DChart() {
   };
 
   Plotly.newPlot('plotlyChart', [trace1, trace2, trace3, traceSol], layout, { responsive: true });
+}
+
+/**
+ * 繪製三元一次聯立方程式無解或無限多解的 3D 空間平面圖
+ */
+function renderThreeVarNoSolutionChart(a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, isInfinite) {
+  const dummySol = { x: 0, y: 0, z: 0 };
+  
+  // 顯示 Plotly, 隱藏 Chart.js Canvas
+  document.getElementById('equationChart').style.display = 'none';
+  const plotlyChartEl = document.getElementById('plotlyChart');
+  plotlyChartEl.style.display = 'block';
+
+  // 取得儲存的係數
+  const eq = equationCoefficients;
+
+  // 生成三個方程式對應的 3D 平面網格點 (中心為 0,0,0)
+  const plane1 = generatePlaneSurface(a1, b1, c1, d1, dummySol);
+  const plane2 = generatePlaneSurface(a2, b2, c2, d2, dummySol);
+  const plane3 = generatePlaneSurface(a3, b3, c3, d3, dummySol);
+
+  // 建立方程式 1 平面 trace (藍色)
+  const trace1 = {
+    type: 'surface',
+    x: plane1.x,
+    y: plane1.y,
+    z: plane1.z,
+    name: '方程式 1 平面',
+    colorscale: [[0, '#3b82f6'], [1, '#3b82f6']],
+    showscale: false,
+    opacity: 0.6,
+  };
+
+  // 建立方程式 2 平面 trace (綠色)
+  const trace2 = {
+    type: 'surface',
+    x: plane2.x,
+    y: plane2.y,
+    z: plane2.z,
+    name: '方程式 2 平面',
+    colorscale: [[0, '#10b981'], [1, '#10b981']],
+    showscale: false,
+    opacity: 0.6,
+  };
+
+  // 建立方程式 3 平面 trace (紅色)
+  const trace3 = {
+    type: 'surface',
+    x: plane3.x,
+    y: plane3.y,
+    z: plane3.z,
+    name: '方程式 3 平面',
+    colorscale: [[0, '#f43f5e'], [1, '#f43f5e']],
+    showscale: false,
+    opacity: 0.6,
+  };
+
+  const layout = {
+    title: {
+      text: isInfinite ? '空間平面關係圖 (無限多組解/無解 - 3D 立體圖)' : '空間平面關係圖 (無解 - 3D 立體圖)',
+      font: { size: 16, family: 'Outfit, sans-serif', weight: 'bold' }
+    },
+    scene: {
+      xaxis: { title: 'X 軸', range: [-5, 5] },
+      yaxis: { title: 'Y 軸', range: [-5, 5] },
+      zaxis: { title: 'Z 軸', range: [-5, 5] }
+    },
+    margin: { l: 0, r: 0, b: 0, t: 40 },
+    legend: {
+      x: 0,
+      y: 1,
+      traceorder: 'normal',
+      font: { family: 'sans-serif', size: 12, color: '#000' },
+      bgcolor: 'rgba(255, 255, 255, 0.5)'
+    }
+  };
+
+  Plotly.newPlot('plotlyChart', [trace1, trace2, trace3], layout, { responsive: true });
 }
 
 /**
