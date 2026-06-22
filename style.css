@@ -1,3 +1,7 @@
+/* ==========================================
+   高雄市立楠梓高級中學 - 幾何分析平台樣式表
+   ========================================== */
+
 * {
   box-sizing: border-box;
 }
@@ -18,9 +22,67 @@ main {
 h1 {
   text-align: center;
   margin-bottom: 1.5rem;
+  color: #1e293b;
 }
 
-/* 頁籤樣式 */
+/* ==========================================
+   新增：頁首與 Logo 樣式 (配合 Flexbox 佈局)
+   ========================================== */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  background: #ffffff;
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.logo-container {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.school-logo {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  /* 懸停平滑過渡動畫 */
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 動態設計：滑鼠懸浮時放大並有些微旋轉 */
+.school-logo:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.header-text {
+  flex-grow: 1;
+}
+
+.header-text h1 {
+  text-align: left;
+  margin: 0 0 0.25rem 0;
+  font-size: 1.75rem;
+  color: #1e293b;
+}
+
+.subtitle {
+  margin: 0;
+  text-align: left;
+  color: #64748b;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* ==========================================
+   頁籤與卡片樣式
+   ========================================== */
 .tabs {
   display: flex;
   justify-content: center;
@@ -61,7 +123,9 @@ h1 {
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
 }
 
-/* 方程式輸入區排版 */
+/* ==========================================
+   方程式輸入區排版
+   ========================================== */
 .equation-grid {
   display: grid;
   gap: 1rem;
@@ -89,6 +153,7 @@ h1 {
 
 label {
   font-weight: 600;
+  color: #4b5563;
 }
 
 input[type="number"] {
@@ -97,6 +162,12 @@ input[type="number"] {
   border: 1px solid #d1d5db;
   border-radius: 0.75rem;
   font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input[type="number"]:focus {
+  border-color: #2563eb;
 }
 
 button.solve-btn {
@@ -133,7 +204,9 @@ button.solve-btn:hover {
   line-height: 1.5;
 }
 
-/* 圖表控制面板樣式 */
+/* ==========================================
+   圖表控制面板與容器
+   ========================================== */
 .chart-controls {
   margin-top: 1.5rem;
   padding: 1.25rem;
@@ -183,7 +256,6 @@ button.solve-btn:hover {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-/* 圖表容器 */
 .chart-container {
   margin-top: 1.5rem;
   padding: 1.25rem;
@@ -196,7 +268,26 @@ button.solve-btn:hover {
   width: 100%;
 }
 
+/* ==========================================
+   響應式設計 (RWD) 調整
+   ========================================== */
 @media (max-width: 680px) {
+  .page-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+
+  .header-text h1 {
+    text-align: center;
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    text-align: center;
+  }
+
   .equation-grid-3,
   .equation-grid-2 {
     grid-template-columns: 1fr;
